@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.5.0)
 project(writer-reader-metadata)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 find_package(ZLIB)
 find_package(TagLib 2.0.0 REQUIRED)
 add_executable(wreader main.cpp)
