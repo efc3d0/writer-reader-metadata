@@ -3,14 +3,10 @@
 #include "imgui/imgui_impl_opengl2.h"
 #include <GL/gl.h>
 #include <GLFW/glfw3.h>
-#include <iostream>
 #include <taglib/fileref.h>
 #include <taglib/tag.h>
 #include <taglib/taglib.h>
 #include <taglib/tpropertymap.h>
-using std::cout;
-using std::endl;
-
 /*class fileHandler
 {
 public:
