@@ -51,11 +51,7 @@ public:
       return;
     }
   }
-  virtual void write_file()
-  {
-    cout << "virtual void write_file() calld from class fileReader : public fileHandler\n";
-    return;
-  }
+  virtual void write_file() {}
 } ;
 
 class fileWriter: public fileHandler
@@ -69,11 +65,7 @@ public:
     this->f = temp;
   }
   ~fileWriter() {}
-  virtual void read_file()
-  {
-    cout << "virtual void read_file() calld from class fileWriter : public fileHandler\n";
-    return;
-  }
+  virtual void read_file() {}
   virtual void write_file()
   {
     TagLib::Tag * tag = this->f.tag();

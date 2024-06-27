@@ -1,4 +1,4 @@
-#include "reader.cpp"
+#include "handler.cpp"
 int main(int argc, char * argv[])
 {
   fileHandler * filehandle;
