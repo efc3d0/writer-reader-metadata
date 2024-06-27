@@ -174,7 +174,7 @@ public:
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     TagLib::FileRef f(st);
     TagLib::Tag *tag = f.tag();
-    TagLib::AudioProperties * prop = f.audioProperties();
+    TagLib::AudioProperties *prop = f.audioProperties();
     int seconds = prop->lengthInSeconds() & 60;
     int minutes = (prop->lengthInSeconds() - seconds) / 60;
     /*const char * title = tag->title().toCString(true);
@@ -271,8 +271,7 @@ public:
           if (ImGui::Button("Save file changes"))
             f.save();
           ImGui::End();
-          if(addition_information_window)
-          {
+          if (addition_information_window) {
             ImGui::Begin("Additional information");
             ImGui::Text("Bitrate  -  %d", prop->bitrate());
             ImGui::Text("Sample Rate  - %d", prop->sampleRate());

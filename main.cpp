@@ -16,6 +16,7 @@ int main(int argc, char * argv[])
   delete writer;
   return 0;
 }*/
+
 #include "handler.cpp"
 #ifdef __APPLE__
 #define GL_SILENCE_DEPRECATION
@@ -31,5 +32,4 @@ int main(int argc, char *argv[]) {
     return 1;
   app *application = new app;
   application->Init(argv[1]);
-  return 0;
 }
