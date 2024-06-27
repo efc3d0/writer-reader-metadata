@@ -160,6 +160,7 @@ public:
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
+    io.Fonts->AddFontFromFileTTF("Alice-Regular.ttf", 21.0f, nullptr, io.Fonts->GetGlyphRangesCyrillic());
     (void)io;
     io.ConfigFlags |=
         ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
