@@ -23,13 +23,13 @@ int main(int argc, char * argv[])
 #endif
 
 static void glfw_error_callback(int error, const char *description) {
-  fprintf(stderr, "GLFW Error %d: %s\n", error, description);
+    fprintf(stderr, "GLFW Error %d: %s\n", error, description);
 }
 
 int main(int argc, char *argv[]) {
-  glfwSetErrorCallback(glfw_error_callback);
-  if (!glfwInit())
-    return 1;
-  app *application = new app;
-  application->Init(argv[1]);
+    glfwSetErrorCallback(glfw_error_callback);
+    if (!glfwInit())
+        return 1;
+    app *application = new app;
+    application->Init(argv[1]);
 }

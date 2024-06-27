@@ -1,6 +1,6 @@
-#include "imgui.h"
-#include "imgui_impl_glfw.h"
-#include "imgui_impl_opengl2.h"
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl2.h"
 #include <GL/gl.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -147,12 +147,19 @@ public:
 } ;
 */
 class app {
-public:
-  void Init(char const *st) {
+private:
+  void cleanup(GLFWwindow *window) {
+    ImGui_ImplOpenGL2_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+    glfwDestroyWindow(window);
+    glfwTerminate();
+  }
+
+  GLFWwindow *initializeWindow() {
     GLFWwindow *window =
-        glfwCreateWindow(1280, 720, "wreader! writer-reader", nullptr, nullptr);
-    if (window == nullptr)
-      return;
+        glfwCreateWindow(800, 720, "wreader! writer-reader", nullptr, nullptr);
     glfwMakeContextCurrent(window);
     glfwSwapInterval(1); // Enable vsync
 
@@ -160,7 +167,8 @@ public:
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
     ImGuiIO &io = ImGui::GetIO();
-    io.Fonts->AddFontFromFileTTF("Alice-Regular.ttf", 21.0f, nullptr, io.Fonts->GetGlyphRangesCyrillic());
+    io.Fonts->AddFontFromFileTTF("Alice-Regular.ttf", 21.0f, nullptr,
+                                 io.Fonts->GetGlyphRangesCyrillic());
     (void)io;
     io.ConfigFlags |=
         ImGuiConfigFlags_NavEnableKeyboard; // Enable Keyboard Controls
@@ -172,17 +180,20 @@ public:
     // Setup Platform/Renderer backends
     ImGui_ImplGlfw_InitForOpenGL(window, true);
     ImGui_ImplOpenGL2_Init();
+    return window;
+  }
+
+public:
+  void Init(char const *st) {
+
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+    GLFWwindow *window = initializeWindow();
     TagLib::FileRef f(st);
     TagLib::Tag *tag = f.tag();
     TagLib::AudioProperties *prop = f.audioProperties();
+    TagLib::PropertyMap properties = f.file()->properties();
     int seconds = prop->lengthInSeconds() & 60;
     int minutes = (prop->lengthInSeconds() - seconds) / 60;
-    /*const char * title = tag->title().toCString(true);
-    const char * artist = tag->artist().toCString(true);
-    const char * album = tag->album().toCString(true);
-    const char * comment = tag->comment().toCString(true); * bad code with
-    const_cast<>() bad code*/
     short *year = new short;
     short *track = new short;
     char title[128] = "";
@@ -190,8 +201,10 @@ public:
     char album[128] = "";
     char comment[128] = "";
     char genre[128] = "";
+    char copyright[128] = "";
     bool set_window = false;
     bool addition_information_window = false;
+
     strcpy(title, tag->title().toCString(true));
     strcpy(artist, tag->artist().toCString(true));
     strcpy(album, tag->album().toCString(true));
@@ -241,36 +254,30 @@ public:
 
         if (set_window) {
           ImGui::Begin("writer", &set_window);
-          if (ImGui::InputText("Change Title to: ", const_cast<char *>(title),
-                               sizeof(title)))
-            tag->setTitle(title);
-          if (ImGui::InputText("Change Artist to: ", const_cast<char *>(artist),
-                               sizeof(artist)))
-            ;
-          tag->setArtist(artist);
-          if (ImGui::InputText("Change Album to: ", const_cast<char *>(album),
-                               sizeof(album)))
-            ;
-          tag->setAlbum(album);
-          /*if(ImGui::InputInt("Change Year to: ", reinterpret_cast< int *
-            >(year), sizeof(year))); tag->setYear(*year);*/
+          ImGui::InputText("Change Title to: ", const_cast<char *>(title),
+                           sizeof(title));
+          ImGui::InputText("Change Artist to: ", const_cast<char *>(artist),
+                           sizeof(artist));
+          ImGui::InputText("Change Album to: ", const_cast<char *>(album),
+                           sizeof(album));
           ImGui::SliderInt("Change Year to: ", reinterpret_cast<int *>(year), 1,
                            4000);
-          tag->setYear(*year);
-          if (ImGui::InputText("Change Comment to: ",
-                               const_cast<char *>(comment), sizeof(comment)))
-            ;
-          tag->setComment(comment);
-          // if(ImGui::InputInt("Change Track to: ", reinterpret_cast< int *
-          // >(track), sizeof(track))); tag->setTrack(*track);
+          ImGui::InputText("Change Comment to: ", const_cast<char *>(comment),
+                           sizeof(comment));
           ImGui::SliderInt("Change Track to: ", reinterpret_cast<int *>(track),
                            0, 4000);
-          tag->setTrack(*track);
-          if (ImGui::InputText("Change Genre to: ", genre, sizeof(genre)))
-            ;
-          tag->setGenre(genre);
-          if (ImGui::Button("Save file changes"))
+          ImGui::InputText("Change Genre to: ", genre, sizeof(genre));
+          if (ImGui::Button("Save file changes")) {
+            tag->setTitle(title);
+            tag->setArtist(artist);
+            tag->setAlbum(album);
+            tag->setYear(*year);
+            tag->setTrack(*track);
+            tag->setComment(comment);
+            tag->setGenre(genre);
             f.save();
+          }
+
           ImGui::End();
           if (addition_information_window) {
             ImGui::Begin("Additional information");
@@ -278,12 +285,18 @@ public:
             ImGui::Text("Sample Rate  - %d", prop->sampleRate());
             ImGui::Text("Channels   - %d", prop->channels());
             ImGui::Text("Length   - %d : %d", minutes, seconds);
+            ImGui::Text("Copyright:    - %s", copyright);
+            if (ImGui::InputText("Input Copyright",
+                                 const_cast<char *>(copyright),
+                                 sizeof(copyright)))
+              properties["COPYRIGHT"].append(copyright);
+            if (ImGui::Button("save"))
+              f.save();
             ImGui::End();
           }
         }
       }
 
-      // Rendering
       ImGui::Render();
       int display_w, display_h;
       glfwGetFramebufferSize(window, &display_w, &display_h);
