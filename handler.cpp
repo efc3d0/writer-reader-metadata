@@ -7,6 +7,7 @@
 #include <taglib/fileref.h>
 #include <taglib/tag.h>
 #include <taglib/taglib.h>
+#include <taglib/tpropertymap.h>
 using std::cout;
 using std::endl;
 
@@ -173,6 +174,9 @@ public:
     ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
     TagLib::FileRef f(st);
     TagLib::Tag *tag = f.tag();
+    TagLib::AudioProperties * prop = f.audioProperties();
+    int seconds = prop->lengthInSeconds() & 60;
+    int minutes = (prop->lengthInSeconds() - seconds) / 60;
     /*const char * title = tag->title().toCString(true);
     const char * artist = tag->artist().toCString(true);
     const char * album = tag->album().toCString(true);
@@ -185,7 +189,8 @@ public:
     char album[128] = "";
     char comment[128] = "";
     char genre[128] = "";
-    bool show_second_window = false;
+    bool set_window = false;
+    bool addition_information_window = false;
     strcpy(title, tag->title().toCString(true));
     strcpy(artist, tag->artist().toCString(true));
     strcpy(album, tag->album().toCString(true));
@@ -228,11 +233,13 @@ public:
         ImGui::Text("Genre: %s", tag->genre().toCString(true));
         ImGui::SetCursorPos(ImVec2(6, 260.5));
         if (ImGui::Button("Edit "))
-          show_second_window = true;
+          set_window = true;
+        if (ImGui::Button("Additional information "))
+          addition_information_window = true;
         ImGui::End();
 
-        if (show_second_window) {
-          ImGui::Begin("writer", &show_second_window);
+        if (set_window) {
+          ImGui::Begin("writer", &set_window);
           if (ImGui::InputText("Change Title to: ", const_cast<char *>(title),
                                sizeof(title)))
             tag->setTitle(title);
@@ -264,6 +271,15 @@ public:
           if (ImGui::Button("Save file changes"))
             f.save();
           ImGui::End();
+          if(addition_information_window)
+          {
+            ImGui::Begin("Additional information");
+            ImGui::Text("Bitrate  -  %d", prop->bitrate());
+            ImGui::Text("Sample Rate  - %d", prop->sampleRate());
+            ImGui::Text("Channels   - %d", prop->channels());
+            ImGui::Text("Length   - %d : %d", minutes, seconds);
+            ImGui::End();
+          }
         }
       }
 
@@ -285,7 +301,8 @@ public:
     ImGui_ImplOpenGL2_Shutdown();
     ImGui_ImplGlfw_Shutdown();
     ImGui::DestroyContext();
-
+    delete year;
+    delete track;
     glfwDestroyWindow(window);
     glfwTerminate();
   }
